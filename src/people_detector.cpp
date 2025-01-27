@@ -8,13 +8,13 @@ PeopleDetector::PeopleDetector()
 {
   // カラー画像の購読
   color_sub_ = this->create_subscription<sensor_msgs::msg::Image>(
-    "/camera/color/image_raw",
+    "/image_raw",   // topic に合わせて変更
     10,
     std::bind(&PeopleDetector::color_callback, this, std::placeholders::_1));
 
   // 深度画像の購読（必要に応じて使用）
   depth_sub_ = this->create_subscription<sensor_msgs::msg::Image>(
-    "/camera/depth/image_raw",
+    "/camera/depth/image_raw",  // topic に合わせて変更
     10,
     std::bind(&PeopleDetector::depth_callback, this, std::placeholders::_1));
 
