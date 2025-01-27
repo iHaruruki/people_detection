@@ -12,6 +12,7 @@ find_package(sensor_msgs REQUIRED)
 find_package(cv_bridge REQUIRED)
 find_package(image_transport REQUIRED)
 find_package(OpenCV REQUIRED)
+find_package(ament_index_cpp REQUIRED)  # 追加
 
 # インクルードディレクトリ
 include_directories(
@@ -29,6 +30,7 @@ ament_target_dependencies(people_detector
   cv_bridge
   image_transport
   OpenCV
+  ament_index_cpp  # 追加
 )
 
 # インストール設定

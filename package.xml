@@ -2,7 +2,7 @@
 <package format="3">
   <name>people_detection</name>
   <version>0.0.1</version>
-  <description>Depthカメラを使用した人検知ノード</description>
+  <description>Depthカメラを使用したYOLOv5ベースの人検知ノード</description>
   <maintainer email="your_email@example.com">Your Name</maintainer>
   <license>Apache License 2.0</license>
 
@@ -13,6 +13,7 @@
   <depend>cv_bridge</depend>
   <depend>image_transport</depend>
   <depend>OpenCV</depend>
+  <depend>ament_index_cpp</depend>  <!-- 追加 -->
 
   <export>
     <build_type>ament_cmake</build_type>
