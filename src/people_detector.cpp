@@ -14,8 +14,8 @@ PeopleDetector::PeopleDetector()
 : Node("people_detector"),
   input_width_(640),
   input_height_(640),
-  scale_(1.0 / 255.0),
-  mean_val_{0, 0, 0}, // 中括弧で初期化
+  scale_(1.0 / 255.0), // 明示的に double 除算
+  mean_val_{0, 0, 0},   // 中括弧で初期化
   swap_rb_(true)
 {
   // カラー画像の購読

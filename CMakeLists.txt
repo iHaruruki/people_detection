@@ -36,7 +36,7 @@ ament_target_dependencies(people_detector
 # インストール設定
 install(TARGETS
   people_detector
-  DESTINATION lib/${PROJECT_NAME}
+  DESTINATION share/${PROJECT_NAME}/models
 )
 
 # パッケージのビルド
