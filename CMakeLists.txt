@@ -1,27 +1,41 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.5)
 project(people_detection)
 
-if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic)
-endif()
+# C++標準
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# find dependencies
+# 必要なパッケージの検出
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(cv_bridge REQUIRED)
 find_package(image_transport REQUIRED)
+find_package(OpenCV REQUIRED)
 
-if(BUILD_TESTING)
-  find_package(ament_lint_auto REQUIRED)
-  # the following line skips the linter which checks for copyrights
-  # comment the line when a copyright and license is added to all source files
-  set(ament_cmake_copyright_FOUND TRUE)
-  # the following line skips cpplint (only works in a git repo)
-  # comment the line when this package is in a git repo and when
-  # a copyright and license is added to all source files
-  set(ament_cmake_cpplint_FOUND TRUE)
-  ament_lint_auto_find_test_dependencies()
-endif()
+# インクルードディレクトリ
+include_directories(
+  include
+  ${OpenCV_INCLUDE_DIRS}
+)
 
+# 実行ファイルの追加
+add_executable(people_detector src/people_detector.cpp)
+
+# リンクライブラリ
+ament_target_dependencies(people_detector
+  rclcpp
+  sensor_msgs
+  cv_bridge
+  image_transport
+  OpenCV
+)
+
+# インストール設定
+install(TARGETS
+  people_detector
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+# パッケージのビルド
 ament_package()
