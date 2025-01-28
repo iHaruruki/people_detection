@@ -33,6 +33,12 @@ PeopleDetector::PeopleDetector()
     10,
     std::bind(&PeopleDetector::depth_callback, this, std::placeholders::_1));
 
+  // /camera/ir/image_raw トピックの購読
+  ir_sub_ = this->create_subscription<sensor_msgs::msg::Image>(
+    "/camera/ir/image_raw",
+    10,
+    std::bind(&PeopleDetector::ir_callback, this, std::placeholders::_1));
+
   RCLCPP_INFO(this->get_logger(), "Subscriptions initialized.");
 
   // YOLOモデルの読み込み
@@ -222,6 +228,11 @@ void PeopleDetector::depth_callback(const sensor_msgs::msg::Image::SharedPtr msg
 
   // 深度画像が正常に取得できたことをログに出力
   RCLCPP_DEBUG(this->get_logger(), "Depth image received.");
+}
+
+void PeopleDetector::ir_callback(const sensor_msgs::msg::Image::SharedPtr msg)
+{
+    // 今回は使用しないので何もしない
 }
 
 }  // namespace people_detection

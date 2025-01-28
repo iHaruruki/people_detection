@@ -19,11 +19,13 @@ public:
 private:
   void color_callback(const sensor_msgs::msg::Image::SharedPtr msg);
   void depth_callback(const sensor_msgs::msg::Image::SharedPtr msg);
+  void ir_callback(const sensor_msgs::msg::Image::SharedPtr msg);
   void load_yolo_model();
   bool is_person_detected_within_distance(const cv::Rect& box, double distance_threshold);
 
   rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr color_sub_;
   rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr depth_sub_;
+  rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr ir_sub_;
 
   cv_bridge::CvImagePtr cv_ptr_color_;
   cv_bridge::CvImagePtr cv_ptr_depth_;
