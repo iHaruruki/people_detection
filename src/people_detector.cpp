@@ -8,7 +8,7 @@ PeopleDetector::PeopleDetector()
 {
   // カラー画像の購読
   color_sub_ = this->create_subscription<sensor_msgs::msg::Image>(
-    "/image_raw",   // topic に合わせて変更
+    "camera/color/image_raw",   // topic に合わせて変更
     10,
     std::bind(&PeopleDetector::color_callback, this, std::placeholders::_1));
 
