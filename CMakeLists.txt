@@ -22,6 +22,7 @@ include_directories(
 
 # 実行ファイルの追加
 add_executable(people_detector src/people_detector.cpp)
+ament_target_dependencies(people_detector rclcpp sensor_msgs cv_bridge OpenCV)
 
 # リンクライブラリ
 ament_target_dependencies(people_detector
@@ -33,10 +34,14 @@ ament_target_dependencies(people_detector
   ament_index_cpp  # 追加
 )
 
-# インストール設定
 install(TARGETS
   people_detector
-  DESTINATION share/${PROJECT_NAME}/models
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+install(DIRECTORY models/
+        DESTINATION share/${PROJECT_NAME}/models
+        FILES_MATCHING PATTERN "*.onnx" PATTERN "*.names"
 )
 
 # パッケージのビルド

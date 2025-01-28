@@ -5,7 +5,7 @@
 #include <opencv2/highgui.hpp>
 #include <fstream>
 #include <sstream>
-#include <ament_index_cpp/get_package_share_directory.hpp> // 追加
+#include <ament_index_cpp/get_package_share_directory.hpp>
 
 namespace people_detection
 {
@@ -14,10 +14,13 @@ PeopleDetector::PeopleDetector()
 : Node("people_detector"),
   input_width_(640),
   input_height_(640),
-  scale_(1.0 / 255.0), // 明示的に double 除算
-  mean_val_{0, 0, 0},   // 中括弧で初期化
-  swap_rb_(true)
+  scale_(1.0 / 255.0),
+  mean_val_{0, 0, 0},
+  swap_rb_(true),
+  DISTANCE_THRESHOLD(2.0)
 {
+  RCLCPP_INFO(this->get_logger(), "Initializing PeopleDetector node.");
+
   // カラー画像の購読
   color_sub_ = this->create_subscription<sensor_msgs::msg::Image>(
     "/camera/color/image_raw",
@@ -30,16 +33,24 @@ PeopleDetector::PeopleDetector()
     10,
     std::bind(&PeopleDetector::depth_callback, this, std::placeholders::_1));
 
+  RCLCPP_INFO(this->get_logger(), "Subscriptions initialized.");
+
   // YOLOモデルの読み込み
   load_yolo_model();
 
   // クラス名の読み込み
   std::string classes_file = ament_index_cpp::get_package_share_directory("people_detection") + "/models/coco.names";
+  RCLCPP_INFO(this->get_logger(), "Loading class names from: %s", classes_file.c_str());
   std::ifstream ifs(classes_file.c_str());
+  if (!ifs.is_open()) {
+    RCLCPP_ERROR(this->get_logger(), "Failed to open classes file: %s", classes_file.c_str());
+    throw std::runtime_error("Failed to open classes file");
+  }
   std::string line;
   while (getline(ifs, line)) {
     class_names_.push_back(line);
   }
+  RCLCPP_INFO(this->get_logger(), "Loaded %zu class names.", class_names_.size());
 
   RCLCPP_INFO(this->get_logger(), "People Detector node has been started.");
 }
@@ -47,17 +58,16 @@ PeopleDetector::PeopleDetector()
 void PeopleDetector::load_yolo_model()
 {
   std::string model_path = ament_index_cpp::get_package_share_directory("people_detection") + "/models/yolov5s.onnx";
+  //std::string model_path = "/home/peach/ros2_ws/install/people_detection/share/people_detection/models/yolov5s.onnx";
+  RCLCPP_INFO(this->get_logger(), "Loading YOLOv5 model from: %s", model_path.c_str());
 
   try {
     net_ = cv::dnn::readNetFromONNX(model_path);
+    RCLCPP_INFO(this->get_logger(), "YOLOv5 model loaded successfully.");
   } catch (const cv::Exception& e) {
     RCLCPP_ERROR(this->get_logger(), "Error loading YOLOv5 model: %s", e.what());
     throw;
   }
-
-  // GPUを使用する場合は以下を有効にする（CUDAがインストールされている必要があります）
-  // net_.setPreferableBackend(cv::dnn::DNN_BACKEND_CUDA);
-  // net_.setPreferableTarget(cv::dnn::DNN_TARGET_CUDA);
 
   // CPUを使用
   net_.setPreferableBackend(cv::dnn::DNN_BACKEND_OPENCV);
@@ -83,8 +93,8 @@ bool PeopleDetector::is_person_detected_within_distance(const cv::Rect& box, dou
   }
 
   // 画像の範囲を超えないようにクランプ
-  center_x = std::max(0, std::min(center_x, cv_ptr_depth_->image.cols - 1));
-  center_y = std::max(0, std::min(center_y, cv_ptr_depth_->image.rows - 1));
+  center_x = std::max(0, std::min(center_x, static_cast<int>(cv_ptr_depth_->image.cols - 1)));
+  center_y = std::max(0, std::min(center_y, static_cast<int>(cv_ptr_depth_->image.rows - 1)));
 
   uint16_t depth_mm = cv_ptr_depth_->image.at<uint16_t>(center_y, center_x);
   if (depth_mm == 0) {
@@ -216,8 +226,12 @@ void PeopleDetector::depth_callback(const sensor_msgs::msg::Image::SharedPtr msg
 int main(int argc, char* argv[])
 {
   rclcpp::init(argc, argv);
-  auto node = std::make_shared<people_detection::PeopleDetector>();
-  rclcpp::spin(node);
+  try {
+    auto node = std::make_shared<people_detection::PeopleDetector>();
+    rclcpp::spin(node);
+  } catch (const std::exception& e) {
+    RCLCPP_FATAL(rclcpp::get_logger("rclcpp"), "Exception: %s", e.what());
+  }
   rclcpp::shutdown();
   return 0;
 }

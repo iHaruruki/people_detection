@@ -1,4 +1,3 @@
-// people_detector.hpp
 #ifndef PEOPLE_DETECTION__PEOPLE_DETECTOR_HPP_
 #define PEOPLE_DETECTION__PEOPLE_DETECTOR_HPP_
 
@@ -34,10 +33,10 @@ private:
   int input_width_;
   int input_height_;
   double scale_;
-  cv::Scalar mean_val_; // cv::Scalar として正しく宣言されていることを確認
+  cv::Scalar mean_val_;
   bool swap_rb_;
 
-  const double DISTANCE_THRESHOLD = 2.0; // メートル単位
+  const double DISTANCE_THRESHOLD;
 };
 
 }  // namespace people_detection
