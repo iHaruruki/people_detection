@@ -103,6 +103,7 @@ bool PeopleDetector::is_person_detected_within_distance(const cv::Rect& box, dou
   }
 
   double depth_m = depth_mm / 1000.0; // ミリメートルからメートルへ変換
+  RCLCPP_INFO(this->get_logger(), "Distance: %f meters", depth_m);
 
   return depth_m <= distance_threshold;
 }
@@ -131,7 +132,7 @@ void PeopleDetector::color_callback(const sensor_msgs::msg::Image::SharedPtr msg
   // 結果の解析
   // YOLOv5のONNX出力形式に基づく解析
   // 出力は [N, 85] のテンソル（バウンディングボックス情報 + クラス確率）
-  float conf_threshold = 0.5;
+  float conf_threshold = 0.3;
   float nms_threshold = 0.4;
   std::vector<int> class_ids;
   std::vector<float> confidences;
@@ -167,6 +168,8 @@ void PeopleDetector::color_callback(const sensor_msgs::msg::Image::SharedPtr msg
       boxes.emplace_back(left, top, static_cast<int>(width), static_cast<int>(height));
     }
   }
+  // 検出された物体の情報を表示
+  RCLCPP_INFO(this->get_logger(), "Detected %zu objects.", boxes.size());
 
   // 非最大抑制
   std::vector<int> indices;
@@ -199,7 +202,7 @@ void PeopleDetector::color_callback(const sensor_msgs::msg::Image::SharedPtr msg
 
   // 2m以内に人が検出された場合に「人検知」を表示
   if (person_detected_within_2m) {
-    cv::putText(image, "人検知", cv::Point(30, 30), cv::FONT_HERSHEY_SIMPLEX, 1.0, cv::Scalar(0,0,255), 2);
+    cv::putText(image, "人検知", cv::Point(image.cols / 2 - 100, image.rows / 2), cv::FONT_HERSHEY_SIMPLEX, 1.0, cv::Scalar(0, 0, 255), 2);
   }
 
   // 結果の表示
