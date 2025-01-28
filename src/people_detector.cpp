@@ -17,7 +17,7 @@ PeopleDetector::PeopleDetector()
   scale_(1.0 / 255.0),
   mean_val_{0, 0, 0},
   swap_rb_(true),
-  DISTANCE_THRESHOLD(2.0)
+  DISTANCE_THRESHOLD(5.0) // 何m以内の人を検知するか
 {
   RCLCPP_INFO(this->get_logger(), "Initializing PeopleDetector node.");
 
